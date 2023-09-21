@@ -38,8 +38,26 @@ class DeleteRestaurant(graphene.Mutation):
         restaurant.delete()
         return DeleteRestaurant(ok=True)
 
+class UpdateRestaurant(graphene.Mutation):
+  class Arguments:
+    id = graphene.Int()
+    name = graphene.String()
+    address = graphene.String()
+
+  ok = graphene.Boolean()
+  restaurant = graphene.Field(RestaurantType)
+
+  def mutate(self, info, id, name, address):
+    restaurant = Restaurant.objects.get(id=id)
+    restaurant.name = name
+    restaurant.address = address
+    restaurant.save()
+    return UpdateRestaurant(ok=True, restaurant=restaurant)
+
+    
 class Mutation(graphene.ObjectType):
     create_restaurant = CreateRestaurant.Field()
     delete_restaurant = DeleteRestaurant.Field()
+    update_restaurant = UpdateRestaurant.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
