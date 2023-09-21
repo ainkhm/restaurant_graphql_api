@@ -13,5 +13,21 @@ class Query(graphene.ObjectType):
 
     def resolve_restaurants(self, info, **kwards):
         return Restaurant.objects.all()
-    
-schema = graphene.Schema(query=Query)
+
+class CreateRestaurant(graphene.Mutation):
+    class Arguments:
+        name = graphene.String()
+        address = graphene.String()
+
+    ok = graphene.Boolean()
+    restaurant = graphene.Field(RestaurantType)
+
+    def mutate(self, info, name, address):
+        restaurant = Restaurant(name=name, address=address)
+        restaurant.save()
+        return CreateRestaurant(ok=True, restaurant=restaurant)
+
+class Mutation(graphene.ObjectType):
+    create_restaurant = CreateRestaurant.Field()
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
